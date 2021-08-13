@@ -39,5 +39,5 @@ document.addEventListener('DOMContentLoaded', () => {
   const ui = new UI();
   const products = new Products();
 
-  products.getProducts().then(data => console.log(data));
+  products.getProducts().then(products => console.log(products));
 });
