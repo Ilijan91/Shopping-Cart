@@ -121,13 +121,49 @@ class UI {
     clearCartBtn.addEventListener('click', () => {
       this.clearCart();
     });
+    cartContent.addEventListener('click', event => {
+      if (event.target.classList.contains('remove-item')) {
+        let removeItem = event.target;
+        let id = removeItem.dataset.id;
+        cart = cart.filter(item => item.id !== id);
+        this.setCartValues(cart);
+        Storage.saveCart(cart);
+        cartContent.removeChild(removeItem.parentElement.parentElement);
+        this.removeItem(id);
+      } else if (event.target.classList.contains('fa-chevron-up')) {
+        let addAmount = event.target;
+        let id = addAmount.dataset.id;
+        let tempItem = cart.find(item => item.id === id);
+        tempItem.amount = tempItem.amount + 1;
+        Storage.saveCart(cart);
+        this.setCartValues(cart);
+        addAmount.nextElementSibling.innerHTML = tempItem.amount;
+      } else if (event.target.classList.contains('fa-chevron-down')) {
+        let lowerAmount = event.target;
+        let id = lowerAmount.dataset.id;
+        let tempItem = cart.find(item => item.id === id);
+        tempItem.amount = tempItem.amount - 1;
+        if (tempItem.amount > 0) {
+          Storage.saveCart(cart);
+          this.setCartValues(cart);
+          lowerAmount.previousElementSibling.innerHTML = tempItem.amount;
+        } else {
+          cartContent.removeChild(lowerAmount.parentElement.parentElement);
+          this.removeItem(id);
+        }
+      }
+    });
   }
   clearCart() {
-    let cartItems = cart.map(item => item.id);
-    cartItems.forEach(id => {
-      this.removeItem(id);
+    cart = [];
+    this.setCartValues(cart);
+    Storage.saveCart(cart);
+    const buttons = [...document.querySelectorAll('.bag-btn')];
+    buttons.forEach(button => {
+      button.disabled = false;
+      button.innerHTML = `<i class="fas fa-shopping-cart"></i>add to cart`;
     });
-    while (cartContent.length > 0) {
+    while (cartContent.children.length > 0) {
       cartContent.removeChild(cartContent.children[0]);
     }
     this.hideCart();
